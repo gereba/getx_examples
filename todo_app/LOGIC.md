@@ -16,80 +16,196 @@ Pseudo-Logic
 main
 ----
 
--   **AuthBinding** extends Bindings
+Widget build( context) {
 
-    -   .dependencies()
+return GetMaterialApp(
 
-        -   AuthController
+-   initialBinding: **AuthBinding**() extends Bindings
 
--   Root
+    -   .dependencies() {
 
-    -   **AuthController** extends GetxController
+        -   **Get.put**\<*AuthController*\>(AuthController(), permanent: *true*)
 
-        -   FirebaseAuth \_auth
+-   home: Root()
 
-        -   FirebaseUser
+     
 
-        -   **.createUser(name, email, password)**
+Root utils
+----------
 
-            -   UserModel
+Root extends **GetWidget**\<*AuthController*\> {
 
-            -   **Database.createNewUser**(user)
+Widget build( context) {
 
-            -   UserController.user
+return **GetX**(
 
-            -   snackbar(*Error creating Account)*
+-   initState: (_) async {
 
-        -   **.login(email, password)**
+    -   Get.put\<UserController\>(UserController() )
 
-            -   \_auth.signInWithEmailAndPassword()
+-   builder: (_) {
 
-            -   Database.getUser(id)
+    -   if (**Get.find**\<*AuthController*\>().user?.uid != null) {
 
-            -   UserController.user
+        -   return *Home*()
 
-            -   snackbar(*Error signing in*)
+    -   else {
 
-        -   .**signOut**()
-
-            -   \_auth.signOut()
-
-            -   UserController.clear
-
-            -   snackbar(*Error signing out*)
-
-    -   **UserController** extends GetxController
-
-        -   Rx\<UserModel\> \_userModel = UserModel().obs
-
-        -   **.set** user(value)
-
-        -   **.clear()**
-
-    -   **Home**()
-
-    -   **Login** extends GetWidget\<AuthController\>
-
-        -   final emailController
-
-        -   final passwordController
-
-    -   **SignUp** extends GetWidget\<AuthController\>
-
-        -   final nameController
-
-        -   final emailController
-
-        -   final passwordController
-
-        -    
+        -   return *Login*()
 
  
 
-home
-----
+AuthController 
+---------------
 
-**Home** extends GetWidget\<AuthController\>
+**AuthController** extends **GetxController {**
+
+FirebaseAuth \_auth = FirebaseAuth.instance
+
+FirebaseUser \_firebaseUser = Rx\<FirebaseUser\>()
+
+-   **onInit**() {
+
+    -   \_firebaseUser get user =\> \_firebaseUser.value
+
+-   **.createUser(name, email, password) async {**
+
+    -   \_authResult = await \_auth.createUserWithEmailAndPassword(email,
+        password)
+
+    -   UserModel \_user = UserModel( id, name, email )  // with
+        \_authResult.user
+
+    -   if (await **Database.createNewUser**(_user) ) {
+
+        -   **Get.find**\<*UserController*\>().user = \_user
+
+        -   **Get.back**()
+
+    -   else {
+
+        -   snackbar(*Error creating Account)*
+
+-   **.login(email, password) async {**
+
+    -   \_authResult = await \_auth.signInWithEmailAndPassword(email, password)
+
+    -   **Get.find**\<*UserController*\>().user = await
+        Database().getUser(_authResult.user.uid)
+
+    -   \_auth.signInWithEmailAndPassword()
+
+    -   } catch(e) { snackbar(*Error signing in*)
+
+-   .**signOut**() async {
+
+    -   await \_auth.signOut()
+
+    -   **Get.find**\<*UserController*\>().clear
+
+    -   } catch(e) { snackbar(*Error signing out*)
+
+ 
+
+UserController
+--------------
+
+**UserController** extends **GetxController**
+
+Rx\<UserModel\> \_userModel = UserModel().**obs**
+
+-   .get user =\> \_userModel.value
+
+-   **.set** user(value) =\> this._userModel.value = value
+
+-   **.clear**() { \_userModel.value = UserModel()
+
+ 
+
+ 
+
+Login Screen
+------------
+
+>   [ Email ]
+
+>   [ Password ]
+
+>   ( Log In ) —\> **authController.login**( Email, Password )
+
+>   ( Sign Up ) —\> [SignUp Screen](#SignUp)
+
+ 
+
+**Login** extends **GetWidget**\<*AuthController*\>
+
+final emailController
+
+final passwordController
+
+Widget build( context ) { return Scaffold(
+
+-   body:  Column [
+
+    -   TextFormField( "*Email*"
+
+    -   TextFormField( "*Password*"
+
+    -   RaisedButtom( "*Log In*" ),
+
+        -   onPressed: () {
+
+            -   **controller.login**( emailController.text,
+                passwordController.text )
+
+    -   FlatButton( "*Sign Up*"),
+
+        -   onPressed: () {
+
+            -   **Get.to**( SignUp() )
+
+ 
+
+ 
+
+SignUp Screen
+-------------
+
+**SignUp** extends **GetWidget**\<*AuthController*\>
+
+final nameController
+
+final emailController
+
+final passwordController
+
+Widget build( context ) { return Scaffold(
+
+-   body:  Column [
+
+    -   TextFormField( "*Full Name*"
+
+    -   TextFormField( "*Email*"
+
+    -   TextFormField( "*Password*"
+
+    -   FlatButton( "*Sign Up*"),
+
+        -   onPressed: () {
+
+            -   **controller.createUser**( nameController, emailController,
+                passwordController)
+
+            -   // if success authController **Get.back()** to Root() widget
+                which checks if authController.user.uid is not null and return
+                to Home() page.
+
+ 
+
+Home Screen
+-----------
+
+**Home** extends **GetWidget**\<*AuthController*\>
 
 final \_todoController
 
@@ -172,6 +288,8 @@ Widget build() {return Scafold( appbar: AppBar(
 
  
 
+ 
+
 todoController
 --------------
 
@@ -196,7 +314,7 @@ void onInit() {
 
  
 
-### models/todo.dart
+### TodoModel
 
 import cloud_firestore.dart
 
@@ -220,7 +338,7 @@ TodoModel.fromDocumentSnapshot({DocumentSnapshot docSnap}) {
 
  
 
-### models/user.dart
+### UserModel
 
 import cloud_firestore.dart
 
