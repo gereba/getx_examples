@@ -16,22 +16,29 @@ Pseudo-Logic
 main
 ----
 
-Widget build( context) {
+Widget build( context ) {
 
-return GetMaterialApp(
+return **GetMaterialApp**(
 
--   initialBinding: **AuthBinding**() extends Bindings
+-   initialBinding: **AuthBinding**(),
 
-    -   .dependencies() {
+-   home: **Root**()
 
-        -   **Get.put**\<*AuthController*\>(AuthController(), permanent: *true*)
+ 
 
--   home: Root()
+AuthBinding
+-----------
 
-     
+AuthBinding extends Bindings {
 
-Root utils
-----------
+-   void dependencies() {
+
+    -   **Get.put**\<*AuthController*\>( AuthController(), permanent: true )
+
+ 
+
+Root
+----
 
 Root extends **GetWidget**\<*AuthController*\> {
 
@@ -41,7 +48,7 @@ return **GetX**(
 
 -   initState: (_) async {
 
-    -   Get.put\<UserController\>(UserController() )
+    -   **Get.put**\<*UserController*\>(UserController() )
 
 -   builder: (_) {
 
@@ -170,6 +177,16 @@ Widget build( context ) { return Scaffold(
 
 SignUp Screen
 -------------
+
+>   [ Full Name ]
+
+>   [ Email ]
+
+>   [ Password ]
+
+>   ( Sign Up ) —\> **authController.createUser**( fullName, Email, Password )
+
+ 
 
 **SignUp** extends **GetWidget**\<*AuthController*\>
 
