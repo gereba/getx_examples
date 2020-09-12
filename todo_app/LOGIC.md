@@ -2,7 +2,7 @@
 title: Tadas-Todo GetX Example
 ---
 
-2020-09-05
+2020-09-11
 
 dev/flutter_demos/getx_examples/todo_app
 
